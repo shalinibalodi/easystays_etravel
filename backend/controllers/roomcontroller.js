@@ -5,10 +5,11 @@ exports.createRoom = async(res, req, next) => {
     
     try{
         const room = await Room.create(req.body)
-    res.status(201).json({
-        success: true,
-        room
-    })}
+        res.status(201).json({
+            success: true,
+            room
+        });
+    }
     catch(err) {
         console.log(err);
     }
