@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllRooms, createRoom } = require("../controllers/roomcontroller");
+const { getAllRooms, createRoom } = require("../controllers/roomController");
 
 const router = express.Router();
 
