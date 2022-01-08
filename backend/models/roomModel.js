@@ -1,14 +1,22 @@
 const mongoose = require("mongoose");
 
-const roomSchema = new mongoose.Schema({
+const roomSchema = mongoose.Schema({
   name: {
     type: String,
-    required: [true, "Please enter Hotel Name"],
+    required: [true, "Hotel name"],
     trim: true,
   },
   description: {
     type: String,
-    required: [true, "Please enter Hotel Description"],
+    required: [true, "Hotel description"]
+  },
+  location: {
+    type: String,
+    required: [true, "Hotel location"]
+  },
+  price: {
+    type: Number,
+    required: [true, 500]
   },
   rating: {
     type: Number,
@@ -18,17 +26,17 @@ const roomSchema = new mongoose.Schema({
     {
       public_id: {
         type: String,
-        required: true,
+        required: [true,"This is a sample Id"]
       },
       url: {
         type: String,
-        required: true,
+        required: [true, "Sample url"]
       },
     },
   ],
   category: {
     type: String,
-    required: [true, "Please enter Hotel Category"],
+    required: [true,"Hotel category"]
   },
   numOfReviews: {
     type: Number,
@@ -55,6 +63,7 @@ const roomSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  
 });
 
 module.exports = mongoose.model("Room", roomSchema);
