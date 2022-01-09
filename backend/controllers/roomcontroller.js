@@ -14,6 +14,24 @@ exports.createRoom = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+// Get all rooms
+exports.getAllRooms = catchAsyncErrors(async (req, res) => {
+  const resultsPerPage = 12;
+  const roomCount = await Room.countDocuments();
+  const apiFeature = new ApiFeatures(Room.find(), req.query)
+    .search()
+    .filter()
+    .pagination(resultsPerPage);
+  const rooms = await apiFeature.query;
+
+  res.status(200).json({
+    success: true,
+    rooms,
+    roomCount,
+    resultsPerPage,
+  });
+});
+
 // Get Room details
 exports.getRoomDetails = catchAsyncErrors(async (req, res, next) => {
   const room = await Room.findById(req.params.id);
@@ -22,26 +40,9 @@ exports.getRoomDetails = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Room not found", 404));
   }
 
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     room,
-    roomCount,
-  });
-});
-
-// Get all rooms
-exports.getAllRooms = catchAsyncErrors(async (req, res) => {
-  const resultsPerPage = 8;
-  const roomCount = await Room.countDocuments();
-  const apiFeature = new ApiFeatures(Room.find(), req.query)
-    .search()
-    .filter()
-    .pagination(resultsPerPage);
-  const rooms = await apiFeature.query;
-
-  res.status(201).json({
-    success: true,
-    rooms,
   });
 });
 
