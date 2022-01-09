@@ -1,88 +1,83 @@
 const Room = require("../models/roomModel");
+const ErrorHandler = require("../utils/errorHandler");
+const catchAsyncErrors = require("../middleware/catchAsyncErrors");
+const ApiFeatures = require("../utils/apiFeatures");
 
-//create room
-exports.createRoom = async(req, res, next) => {
-    
-    try{
-         const room = await Room.create(req.body);
-         res.status(201).json({
-             success: true,
-             message: "Room created successfully",
-             room
-    });
-}
-    catch(err) {
-        console.log(err);
-    }
-}
+// Create room
+exports.createRoom = catchAsyncErrors(async (req, res, next) => {
+  const room = await Room.create(req.body);
 
-//Get Room details
-exports.getRoomDetails = async(req,res,next) => {
-    const room = await Room.findById(req.params.id)
-    if(!room) {
-        return res.status(500).json({
-            success: false,
-            message: "Room not found"
-        })
-    }
+  res.status(201).json({
+    success: true,
+    message: "Room created successfully",
+    room,
+  });
+});
 
-    res.status(201).json({
-        success: true,
-        room
-    })
+// Get Room details
+exports.getRoomDetails = catchAsyncErrors(async (req, res, next) => {
+  const room = await Room.findById(req.params.id);
 
-}
+  if (!room) {
+    return next(new ErrorHandler("Room not found", 404));
+  }
+
+  res.status(201).json({
+    success: true,
+    room,
+    roomCount,
+  });
+});
 
 // Get all rooms
-exports.getAllRooms = async(req,res) => {
+exports.getAllRooms = catchAsyncErrors(async (req, res) => {
+  const resultsPerPage = 8;
+  const roomCount = await Room.countDocuments();
+  const apiFeature = new ApiFeatures(Room.find(), req.query)
+    .search()
+    .filter()
+    .pagination(resultsPerPage);
+  const rooms = await apiFeature.query;
 
-    const rooms = await Room.find();
+  res.status(201).json({
+    success: true,
+    rooms,
+  });
+});
 
-    res.status(201).json({
-             success: true,
-             rooms
-    });
-}
+// Update room
+exports.updateRoom = catchAsyncErrors(async (req, res, next) => {
+  let room = Room.findById(req.params.id);
 
-//Update room
-exports.updateRoom = async(req,res,next) => {
+  if (!room) {
+    return next(new ErrorHandler("Room not found", 404));
+  }
 
-    let room = Room.findById(req.params.id);
-    if(!room) {
-        return res.status(500).json({
-            success: false,
-            message: "Room not found"
-        })    
-    }
+  room = await Room.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
 
-    room = await Room.findByIdAndUpdate(req.params.id, req.body, 
-        {new: true,
-         runValidators: true,
-         useFindAndModify:false
-        });
-
-     res.status(200).json({ 
-         success:true,
-         message: "Room successfully updated",
-         room
-    })   
-
-}
+  res.status(200).json({
+    success: true,
+    message: "Room successfully updated",
+    room,
+  });
+});
 
 // Delete room
-exports.deleteRoom = async(req,res,next) => {
-    const room = await Room.findById(req.params.id);
-    if(!room) {
-        return res.status(500).json({
-            success: false,
-            message: "Room not found"
-        })
-    }
-    await room.remove();
-    
-    res.status(201).json({
-        success: true,
-        message: "Room deleted successfully!"
-    })
+exports.deleteRoom = catchAsyncErrors(async (req, res, next) => {
+  const room = await Room.findById(req.params.id);
 
-}
+  if (!room) {
+    return next(new ErrorHandler("Room not found", 404));
+  }
+
+  await room.remove();
+
+  res.status(201).json({
+    success: true,
+    message: "Room deleted successfully!",
+  });
+});
